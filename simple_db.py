@@ -6,16 +6,16 @@ from b_tree import BTree
 class SimpleDatabase:
     def __init__(self):
         # before an actual table is loaded, class members are set to None
-        
+
         # a header is a list of column names
         # e.g., ['name', 'id', 'grade']
         self.header = None
-        
+
         # map column name to column index in the header
         self.columns = None
-        
+
         # None if table is not loaded
-        # otherwise list b-tree indices corresponding to columns 
+        # otherwise list b-tree indices corresponding to columns
         self.b_trees = None
 
         # rows contains actual data; this is a list of lists
@@ -46,11 +46,11 @@ class SimpleDatabase:
             self.header = f.readline().rstrip().split(",")
             self.rows = [line.rstrip().split(",") for line in f]
         self.table_name = table_name
-        
+
         self.columns = {}
         for i, column_name in enumerate(self.header):
             self.columns[column_name] = i
-            
+
         self.b_trees = [None] * len(self.header)
         print("... done!")
 
@@ -64,12 +64,42 @@ class SimpleDatabase:
         if column_name not in self.columns:
             # no such column
             return self.header, []
-            
+
+        #get column index
         col_id = self.columns[column_name]
-        
+
         selected_rows = []
-        for row in self.rows:
-            if row[col_id] == column_value:
-                selected_rows.append(row)
-        
+
+        #use index if exist
+        if self.b_trees[col_id] is not None:
+            btree = self.b_trees[col_id]
+            result = btree.search_key(column_value)
+            if result:
+                node, index = result
+                selected_rows = node.key_vals[index][1]
+        else:
+        #if index not exist
+            for row in self.rows:
+                if row[col_id] == column_value:
+                    selected_rows.append(row)
+
         return self.header, selected_rows
+
+    def create_index(self,column_name):
+        col_id = self.columns[column_name]
+
+        #Create B-tree
+        b_tree = BTree()
+        for row in self.rows:
+            b_tree.insert_key(row[col_id], row)
+
+        #create index in b-tree
+        self.b_trees[col_id] = BTree()
+
+    def drop_index(self,column_name):
+        col_id = self.columns[column_name]
+
+        #drop the index
+        self.b_trees[col_id] = None
+
+

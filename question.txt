@@ -7,3 +7,9 @@ Suppose that you are given source code for a DBMS that does not support indexing
 
 Answer:
 ... your answer here ...
+
+There are multiple ways that I can test my extended code:
+- First, we run all the orginal function without create index to ensure that my extended code doesn't affect any function in the DBMS.
+- Performance checking: I'll select a random variable to query with and without index to see if the result match, and check the time elapsed to see if the index works (it should takes less time than no index).
+- I could test creating index in multiple columns or multiple data types in the DBMS.
+- Test for errors: For example: drop index without create, uncorrect command, create index in non-existent column,...
